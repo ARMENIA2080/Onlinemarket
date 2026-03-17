@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aura Shop</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+
+  <!-- ========== HEADER ========== -->
+  <header class="header">
+    <div class="header__logo">
+      <span class="logo-aura">✦ Aura</span><span class="logo-shop">Shop</span>
+    </div>
+
+    <nav class="header__nav">
+      <button class="nav-btn" id="showCatalogBtn" onclick="showSection('catalog')">
+        <i class="fas fa-store"></i> Каталог
+      </button>
+      <button class="nav-btn" id="showOrdersBtn" onclick="showSection('orders')">
+        <i class="fas fa-box"></i> Заказы
+      </button>
+    </nav>
+
+    <div class="header__actions">
+      <!-- Поиск -->
+      <div class="search-wrap">
+        <input type="text" id="searchInput" placeholder="Поиск товаров..." oninput="filterProducts()"/>
+        <i class="fas fa-search search-icon"></i>
+      </div>
+
+      <!-- Фильтр категорий -->
+      <select id="categoryFilter" class="cat-select" onchange="filterProducts()">
+        <option value="all">Все категории</option>
+        <option value="Одежда">Одежда</option>
+        <option value="Обувь">Обувь</option>
+        <option value="Аксессуары">Аксессуары</option>
+        <option value="Спорт">Спорт</option>
+      </select>
+
+      <!-- Корзина -->
+      <button class="icon-btn cart-btn" onclick="toggleCart()">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="badge" id="cartBadge">0</span>
+      </button>
+
+      <!-- Избранное -->
+      <button class="icon-btn fav-btn" onclick="toggleFavorites()">
+        <i class="fas fa-heart"></i>
+        <span class="badge fav-badge" id="favBadge">0</span>
+      </button>
+
+      <!-- Аккаунт -->
+      <button class="icon-btn acc-btn" onclick="toggleAccount()">
+        <i class="fas fa-user"></i>
+        <span id="userLabel">Войти</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ========== MAIN ========== -->
+  <main>
+
+    <!-- HERO BANNER -->
+    <section class="hero" id="heroSection">
+      <div class="hero__content">
+        <h1>Открой свою <span class="glow">ауру</span></h1>
+        <p>Стильная одежда и аксессуары для тех, кто чувствует вкус</p>
+        <button class="btn-primary hero-cta" onclick="showSection('catalog')">
+          <i class="fas fa-bolt"></i> Смотреть каталог
+        </button>
+      </div>
+      <div class="hero__orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+      </div>
+    </section>
+
+    <!-- ========== CATALOG ========== -->
+    <section class="section catalog-section" id="catalog" style="display:none;">
+      <h2 class="section-title"><i class="fas fa-store"></i> Каталог товаров</h2>
+      <div class="products-grid" id="productsGrid"></div>
+    </section>
+
+    <!-- ========== ORDERS ========== -->
+    <section class="section orders-section" id="orders" style="display:none;">
+      <h2 class="section-title"><i class="fas fa-box"></i> Мои заказы</h2>
+      <div id="ordersList"></div>
+    </section>
+
+  </main>
+
+  <!-- ========== CART PANEL ========== -->
+  <div class="overlay" id="cartOverlay" onclick="toggleCart()"></div>
+  <aside class="cart-panel" id="cartPanel">
+    <div class="panel-header">
+      <h3><i class="fas fa-shopping-cart"></i> Корзина</h3>
+      <button class="close-btn" onclick="toggleCart()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="cart-items" id="cartItems"></div>
+    <div class="cart-footer">
+      <div class="cart-total">
+        Итого: <span id="cartTotal">0 ₽</span>
+      </div>
+      <button class="btn-primary checkout-btn" onclick="checkout()">
+        <i class="fas fa-check-circle"></i> Оформить заказ
+      </button>
+      <button class="btn-outline clear-btn" onclick="clearCart()">
+        <i class="fas fa-trash"></i> Очистить
+      </button>
+    </div>
+  </aside>
+
+  <!-- ========== FAVORITES PANEL ========== -->
+  <div class="overlay" id="favOverlay" onclick="toggleFavorites()"></div>
+  <aside class="fav-panel" id="favPanel">
+    <div class="panel-header">
+      <h3><i class="fas fa-heart"></i> Избранное</h3>
+      <button class="close-btn" onclick="toggleFavorites()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="fav-items" id="favItems"></div>
+  </aside>
+
+  <!-- ========== ACCOUNT MODAL ========== -->
+  <div class="modal-overlay" id="accountOverlay" onclick="closeAccountModal(event)">
+    <div class="modal" id="accountModal">
+      <button class="close-btn modal-close" onclick="toggleAccount()"><i class="fas fa-times"></i></button>
+
+      <!-- Вход -->
+      <div id="loginForm">
+        <h3 class="modal-title"><i class="fas fa-sign-in-alt"></i> Вход в аккаунт</h3>
+        <div class="form-group">
+          <label>Логин</label>
+          <input type="text" id="loginUsername" placeholder="Введите логин"/>
+        </div>
+        <div class="form-group">
+          <label>Пароль</label>
+          <input type="password" id="loginPassword" placeholder="Введите пароль"/>
+        </div>
+        <div id="loginError" class="form-error"></div>
+        <button class="btn-primary full-btn" onclick="login()">
+          <i class="fas fa-sign-in-alt"></i> Войти
+        </button>
+        <p class="switch-link">Нет аккаунта? <a onclick="switchToRegister()">Зарегистрироваться</a></p>
+      </div>
+
+      <!-- Регистрация -->
+      <div id="registerForm" style="display:none;">
+        <h3 class="modal-title"><i class="fas fa-user-plus"></i> Регистрация</h3>
+        <div class="form-group">
+          <label>Логин</label>
+          <input type="text" id="regUsername" placeholder="Придумайте логин"/>
+        </div>
+        <div class="form-group">
+          <label>Пароль</label>
+          <input type="password" id="regPassword" placeholder="Придумайте пароль"/>
+        </div>
+        <div class="form-group">
+          <label>Повторите пароль</label>
+          <input type="password" id="regPasswordConfirm" placeholder="Повторите пароль"/>
+        </div>
+        <div id="regError" class="form-error"></div>
+        <button class="btn-primary full-btn" onclick="register()">
+          <i class="fas fa-user-plus"></i> Зарегистрироваться
+        </button>
+        <p class="switch-link">Есть аккаунт? <a onclick="switchToLogin()">Войти</a></p>
+      </div>
+
+      <!-- Профиль -->
+      <div id="profileView" style="display:none;">
+        <div class="profile-avatar">
+          <i class="fas fa-user-circle"></i>
+        </div>
+        <h3 class="modal-title" id="profileName"></h3>
+        <p class="profile-info" id="profileOrdersCount"></p>
+        <button class="btn-outline full-btn mt-10" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i> Выйти
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== PRODUCT MODAL ========== -->
+  <div class="modal-overlay" id="productOverlay" onclick="closeProductModal(event)">
+    <div class="modal product-modal" id="productModal">
+      <button class="close-btn modal-close" onclick="closeProduct()"><i class="fas fa-times"></i></button>
+      <div class="product-modal-body" id="productModalBody"></div>
+    </div>
+  </div>
+
+  <!-- ========== TOAST ========== -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="footer">
+    <p>✦ Aura Shop &copy; 2025 — Открой свою ауру</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
